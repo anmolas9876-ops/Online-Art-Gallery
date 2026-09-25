@@ -1,0 +1,33 @@
+.login-box, .register-box {
+    width: 300px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #777777;
+    text-align: center;
+}
+
+.login-box input, .register-box input {
+    width: 90%;
+    padding: 8px;
+    margin: 8px;
+}
+
+.login-box label, .register-box label {
+    display: block;
+    text-align: left;
+    margin-left: 10px;
+}
+
+.login-box button, .register-box button {
+    margin-top: 10px;
+    background-color: #333366;
+    color: white;
+    padding: 8px 20px;
+    border: 1px solid #333366;
+}
+
+#loginMessage, #registerMessage {
+    color: green;
+    font-weight: bold;
+}

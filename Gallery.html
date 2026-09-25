@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Art Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">ART GALLERY</div>
+
+    <div class="search">
+        <input type="text" placeholder="Search Paintings">
+        <button>Search</button>
+    </div>
+
+    <div class="links">
+        <a href="#" onclick="openLogin()">Login</a>
+        <a href="#" onclick="openRegister()">Register</a>
+        <a href="#" onclick="openBids()">My Bids</a>
+    </div>
+
+</header>
+
+<nav>
+    <a href="#">Paintings</a>
+    <a href="#">Modern Art</a>
+    <a href="#">Traditional Art</a>
+    <a href="#">Sculptures</a>
+    <a href="#">Artists</a>
+    <a href="#">About Us</a>
+</nav>
+
+<section class="banner">
+
+    <div class="slider">
+
+        <div class="slide">
+            <img src="Banner/banner 1.png" alt="Art Gallery Banner">
+        </div>
+
+        <div class="slide">
+            <img src="Banner/banner 2.png" alt="Art Gallery Banner">
+        </div>
+
+    </div>
+
+    <button class="prev" onclick="previousSlide()">❮</button>
+    <button class="next" onclick="nextSlide()">❯</button>
+
+    <div class="dots">
+        <span class="dot active" onclick="showSlide(0)"></span>
+        <span class="dot" onclick="showSlide(1)"></span>
+    </div>
+
+</section>
+
+<h2>FEATURED ARTWORKS</h2>
+
+<section class="products">
+
+    <div class="product">
+
+        <img
+            class="art"
+            src="images/adrianna-geo-1rBg5YSi00c-unsplash.jpg"
+            alt="Painting"
+        >
+
+        <h3>Council of Gods</h3>
+
+        <p>Artist: Adrianna Geo</p>
+
+        <p class="price">Current Bid: $2500</p>
+
+        <button onclick="openBidForm('Council of Gods', 2500)">
+            Place Bid
+        </button>
+
+    </div>
+
+    <div class="product">
+
+        <img
+            class="art"
+            src="images/birmingham-museums-trust-8wcoY3wcbL0-unsplash.jpg"
+            alt="Painting"
+        >
+
+        <h3>Landscape with Peasants, Cows, Sheep, Cottages and Pool</h3>
+
+        <p>Artist: Thomas Gainsborough</p>
+
+        <p class="price">Current Bid: $1800</p>
+
+        <button onclick="openBidForm('Landscape with Peasants, Cows, Sheep, Cottages and Pool', 1800)">
+            Place Bid
+        </button>
+
+    </div>
+
+    <div class="product">
+
+        <img
+            class="art"
+            src="images/chris-czermak-PamFFHL6fVY-unsplash.jpg"
+            alt="Painting"
+        >
+
+        <h3>Trevi Fountain</h3>
+
+        <p>Artist: Anmol Singh</p>
+
+        <p class="price">Current Bid: $3200</p>
+
+        <button onclick="openBidForm('Trevi Fountain', 3200)">
+            Place Bid
+        </button>
+
+    </div>
+
+    <div class="product">
+
+        <img
+            class="art"
+            src="images/birmingham-museums-trust-nbneQlI2M1A-unsplash.jpg"
+            alt="Painting"
+        >
+
+        <h3>Abstract Dreams</h3>
+
+        <p>Artist: Sarah Johnson</p>
+
+        <p class="price">Current Bid: $999</p>
+
+        <button onclick="openBidForm('Abstract Dreams', 999)">
+            Place Bid
+        </button>
+
+    </div>
+
+</section>
+
+<section class="auction">
+
+    <h2>LIVE AUCTION</h2>
+
+    <p>Bid on selected artworks before the auction ends!</p>
+
+    <p>
+        <b>Next Auction:</b> Sunday, 6:00 PM
+    </p>
+
+    <button>View Auction Items</button>
+
+</section>
+
+<section class="offers">
+
+    <h2>OUR SERVICES</h2>
+
+    <p>Original Paintings</p>
+    <p>Online Auctions</p>
+    <p>Artist Profiles</p>
+    <p>Safe Payment</p>
+
+</section>
+
+<footer>
+
+    <p>
+        Easy Buying &nbsp;&nbsp; |
+        &nbsp;&nbsp; Online Auction &nbsp;&nbsp; |
+        &nbsp;&nbsp; Trusted Artists &nbsp;&nbsp; |
+        &nbsp;&nbsp; Customer Support
+    </p>
+
+    <p>© 2026 Art Gallery</p>
+
+</footer>
+
+<div id="loginBox" class="popup">
+
+    <div class="form-box">
+
+        <span class="close" onclick="closeForms()">×</span>
+
+        <h2>Login</h2>
+
+        <form onsubmit="login(event)">
+
+            <input
+                type="text"
+                placeholder="Email or Username"
+                required
+            >
+
+            <input
+                type="password"
+                placeholder="Password"
+                required
+            >
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div id="registerBox" class="popup">
+
+    <div class="form-box">
+
+        <span class="close" onclick="closeForms()">×</span>
+
+        <h2>Register</h2>
+
+        <form onsubmit="register(event)">
+
+            <input
+                type="text"
+                placeholder="Full Name"
+                required
+            >
+
+            <input
+                type="email"
+                placeholder="Email"
+                required
+            >
+
+            <input
+                type="password"
+                placeholder="Password"
+                required
+            >
+
+            <input
+                type="password"
+                placeholder="Confirm Password"
+                required
+            >
+
+            <button type="submit">
+                Register
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div id="bidsBox" class="popup">
+
+    <div class="form-box">
+
+        <span class="close" onclick="closeForms()">×</span>
+
+        <h2>My Bids</h2>
+
+        <div id="myBids">
+
+            <p>
+                No bids placed yet.
+            </p>
+
+        </div>
+
+        <button onclick="closeForms()">
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+<div id="bidBox" class="popup">
+
+    <div class="form-box">
+
+        <span class="close" onclick="closeForms()">×</span>
+
+        <h2>Place Your Bid</h2>
+
+        <p id="bidArtwork"></p>
+
+        <p id="bidCurrentPrice"></p>
+
+        <form onsubmit="placeBid(event)">
+
+            <input
+                id="bidAmount"
+                type="number"
+                placeholder="Enter your bid amount"
+                min="1"
+                required
+            >
+
+            <button type="submit">
+                Place Bid
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>

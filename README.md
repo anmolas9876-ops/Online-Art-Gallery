@@ -20,6 +20,6 @@ npm install
 npm run dev
 ```
 
-The API listens on `http://localhost:5000`. Copy `.env.example` to `.env` to override the port or frontend origin. Artwork and bid data are stored in `data/`; artwork submissions are saved with `pending` status for gallery review.
+The API listens on `http://localhost:5000`. Copy `.env.example` to `.env` to set the port, frontend origin, and session secret. Artwork, bids, and registered account password hashes are stored in `data/`; account data is local and ignored by Git. Artwork submissions are saved with `pending` status for gallery review.
 
-Available endpoints: `GET /api/health`, `GET /api/artworks`, `GET /api/bids`, `POST /api/bids`, and `POST /api/submissions`.
+Available endpoints: `GET /api/health`, `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`, `GET /api/artworks`, `GET /api/bids`, `POST /api/bids`, and `POST /api/submissions`.

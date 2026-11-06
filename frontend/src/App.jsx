@@ -48,6 +48,14 @@ function App() {
   const [bidAmount, setBidAmount] = useState('')
   const [bidderName, setBidderName] = useState('')
   const [submissionOpen, setSubmissionOpen] = useState(false)
+  const [authMode, setAuthMode] = useState(null)
+  const [authUser, setAuthUser] = useState(null)
+  const [authError, setAuthError] = useState('')
+  const [authBusy, setAuthBusy] = useState(false)
+  const [myBidsOpen, setMyBidsOpen] = useState(false)
+  const [myBidsBusy, setMyBidsBusy] = useState(false)
+  const [myBidsError, setMyBidsError] = useState('')
+  const [myBids, setMyBids] = useState([])
   const [notice, setNotice] = useState('')
   const [bids, setBids] = useState(() => {
     try { return JSON.parse(localStorage.getItem('artGalleryMyBids') || '[]') } catch { return [] }
@@ -57,6 +65,10 @@ function App() {
     let mounted = true
     fetch('/api/artworks').then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { if (mounted && Array.isArray(data) && data.length) setArtworks(data) }).catch(() => {})
     return () => { mounted = false }
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/auth/me').then((response) => response.ok ? response.json() : null).then((data) => { if (data?.user) setAuthUser(data.user) }).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -82,12 +94,14 @@ function App() {
       setNotice(`Enter a bid higher than ${formatINR(bidItem?.price || 0)}.`)
       return
     }
-    const newBid = { artworkId: bidItem.id, artwork: bidItem.name, bidder: bidderName.trim(), amount: value, createdAt: new Date().toISOString() }
+    const newBid = { artworkId: bidItem.id, artwork: bidItem.name, bidder: (authUser?.name || bidderName).trim(), amount: value, createdAt: new Date().toISOString() }
     try {
       const response = await fetch('/api/bids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newBid) })
-      if (!response.ok) throw new Error()
-    } catch {
-      setNotice('The gallery service is unavailable. Please start the backend and try again.')
+      const savedBid = await response.json()
+      if (!response.ok) throw new Error(savedBid.error || 'Could not save this bid.')
+      Object.assign(newBid, savedBid)
+    } catch (error) {
+      setNotice(error.message || 'The gallery service is unavailable. Please start the backend and try again.')
       return
     }
     const nextBids = [newBid, ...bids]
@@ -116,6 +130,57 @@ function App() {
     setNotice('Your artwork was sent to the gallery team for review.')
   }
 
+  const submitAuth = async (event) => {
+    event.preventDefault()
+    setAuthError('')
+    setAuthBusy(true)
+    const formData = new FormData(event.currentTarget)
+    const payload = Object.fromEntries(formData.entries())
+    try {
+      const response = await fetch(`/api/auth/${authMode}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Could not sign in. Please try again.')
+      setAuthUser(data.user)
+      setBidderName(data.user.name)
+      setAuthMode(null)
+      setNotice(authMode === 'register' ? `Welcome to the gallery, ${data.user.name}. Your account is ready.` : `Welcome back, ${data.user.name}.`)
+    } catch (error) {
+      setAuthError(error.message || 'The gallery service is unavailable. Start the backend and try again.')
+    } finally {
+      setAuthBusy(false)
+    }
+  }
+
+  const logout = async () => {
+    try { await fetch('/api/auth/logout', { method: 'POST' }) } catch { /* Clear the local account display either way. */ }
+    setAuthUser(null)
+    setNotice('You have been signed out.')
+  }
+
+  const openMyBids = async () => {
+    setMyBidsOpen(true)
+    setMyBidsError('')
+    setMyBidsBusy(true)
+    const localBids = (() => {
+      try { return JSON.parse(localStorage.getItem('artGalleryMyBids') || '[]') } catch { return [] }
+    })()
+    try {
+      if (!authUser) {
+        setMyBids(localBids)
+        return
+      }
+      const response = await fetch('/api/bids/mine')
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Could not load your bids.')
+      const olderLocalBids = localBids.filter((bid) => bid.bidder?.toLowerCase() === authUser.name.toLowerCase() && !data.bids.some((saved) => saved.artworkId === bid.artworkId && Number(saved.amount) === Number(bid.amount)))
+      setMyBids([...data.bids, ...olderLocalBids])
+    } catch (error) {
+      setMyBidsError(error.message || 'Could not load your bids. Please try again.')
+    } finally {
+      setMyBidsBusy(false)
+    }
+  }
+
   const filteredArtists = artistCategory === 'all' ? artists : artists.filter((artist) => artist[1] === artistCategory)
   const onSearch = (event) => { event.preventDefault(); document.getElementById('paintings')?.scrollIntoView({ behavior: 'smooth' }) }
 
@@ -123,7 +188,7 @@ function App() {
     <header className="site-header">
       <a className="brand" href="#home" aria-label="Art Gallery home"><img src="/images/gallery-emblem.png" alt="" /><img className="wordmark" src="/images/gallery-wordmark.png" alt="Art Gallery" /></a>
       <form className="search-form" onSubmit={onSearch}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search paintings" aria-label="Search paintings" /><button aria-label="Search">⌕</button></form>
-      <div className="header-links"><button onClick={() => setNotice('Sign in will be available when gallery accounts are enabled.')}>Login</button><button onClick={() => setNotice('Registration will be available when gallery accounts are enabled.')}>Register</button><button onClick={() => setNotice(bids.length ? `You have ${bids.length} saved bid${bids.length === 1 ? '' : 's'}.` : 'You have not placed any bids yet.')}>My Bids{bids.length > 0 && <span className="bid-count">{bids.length}</span>}</button><button onClick={() => setSubmissionOpen(true)}>Submit artwork</button></div>
+      <div className="header-links">{authUser ? <><span className="account-greeting">Hi, {authUser.name}</span><button onClick={logout}>Log out</button></> : <><button onClick={() => { setAuthError(''); setAuthMode('login') }}>Login</button><button onClick={() => { setAuthError(''); setAuthMode('register') }}>Register</button></>}<button onClick={openMyBids}>My Bids{bids.length > 0 && <span className="bid-count">{bids.length}</span>}</button><button onClick={() => setSubmissionOpen(true)}>Submit artwork</button></div>
     </header>
     <nav className="main-nav" aria-label="Main navigation">{[['all', 'Paintings'], ['modern-art', 'Modern Art'], ['traditional-art', 'Traditional Art'], ['sculptures', 'Sculptures']].map(([id, label]) => <button className={category === id ? 'selected' : ''} key={id} onClick={() => chooseCategory(id)}>{label}</button>)}<a href="#artists">Artists</a><a href="#about">About us</a></nav>
     {notice && <div className="notice" role="status"><span>{notice}</span><button onClick={() => setNotice('')} aria-label="Dismiss">×</button></div>}
@@ -141,6 +206,8 @@ function App() {
     <footer className="site-footer"><p>Easy buying <span>·</span> Online auctions <span>·</span> Trusted artists <span>·</span> Curated collections</p><p>© 2026 Art Gallery</p><p>Made by Anmol · <a href="https://github.com/anmolas9876-ops" target="_blank" rel="noreferrer">GitHub</a></p></footer>
     {bidItem && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBidItem(null) }}><section className="bid-modal" role="dialog" aria-modal="true" aria-labelledby="bid-title"><button className="modal-close" aria-label="Close" onClick={() => setBidItem(null)}>×</button><p className="eyebrow">PLACE A BID</p><h2 id="bid-title">{bidItem.name}</h2><p>Current bid <strong>{formatINR(bidItem.price)}</strong></p><form onSubmit={placeBid}><label>Your name<input required maxLength="80" value={bidderName} onChange={(event) => setBidderName(event.target.value)} /></label><label htmlFor="bid-amount">Your bid (INR)<input id="bid-amount" type="number" min={Number(bidItem.price) + 1} step="50" required value={bidAmount} onChange={(event) => setBidAmount(event.target.value)} /></label><button className="bid-button">Confirm bid <span>↗</span></button></form><small>By placing a bid, you agree to be contacted about this artwork.</small></section></div>}
     {submissionOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSubmissionOpen(false) }}><section className="bid-modal" role="dialog" aria-modal="true" aria-labelledby="submission-title"><button className="modal-close" aria-label="Close" onClick={() => setSubmissionOpen(false)}>×</button><p className="eyebrow">ARTIST SUBMISSIONS</p><h2 id="submission-title">Share your work</h2><p>Send your artwork to the gallery team for review.</p><form onSubmit={submitArtwork}><label>Artist name<input name="artist" required maxLength="80" /></label><label>Artwork title<input name="title" required maxLength="120" /></label><label>Collection<select name="category" required defaultValue="modern-art"><option value="traditional-art">Traditional art</option><option value="sculptures">Sculpture</option><option value="modern-art">Modern art</option></select></label><label>Artwork image URL<input name="image" type="url" required /></label><label>Starting bid (INR)<input name="price" type="number" min="1" required /></label><label>About your work<textarea name="story" rows="3" maxLength="600" /></label><button className="bid-button">Send for review <span>↗</span></button></form><small>Submissions are reviewed by the gallery before they appear online.</small></section></div>}
+    {authMode && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setAuthMode(null) }}><section className="bid-modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title"><button className="modal-close" aria-label="Close" onClick={() => setAuthMode(null)}>×</button><p className="eyebrow">ART GALLERY ACCOUNT</p><h2 id="auth-title">{authMode === 'register' ? 'Join the gallery' : 'Welcome back'}</h2><p>{authMode === 'register' ? 'Create an account to be part of our collector community.' : 'Sign in to your collector account.'}</p><form onSubmit={submitAuth}>{authMode === 'register' && <label>Your name<input name="name" required minLength="2" maxLength="80" autoComplete="name" /></label>}<label>Email address<input name="email" type="email" required maxLength="254" autoComplete="email" /></label><label>Password<input name="password" type="password" required minLength="8" autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} /></label>{authError && <p className="auth-error" role="alert">{authError}</p>}<button className="bid-button" disabled={authBusy}>{authBusy ? 'Please wait…' : authMode === 'register' ? 'Create account' : 'Sign in'} <span>↗</span></button></form><p className="auth-switch">{authMode === 'register' ? 'Already have an account?' : 'New to the gallery?'} <button onClick={() => { setAuthError(''); setAuthMode(authMode === 'register' ? 'login' : 'register') }}>{authMode === 'register' ? 'Sign in' : 'Create an account'}</button></p></section></div>}
+    {myBidsOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setMyBidsOpen(false) }}><section className="bid-modal my-bids-modal" role="dialog" aria-modal="true" aria-labelledby="my-bids-title"><button className="modal-close" aria-label="Close" onClick={() => setMyBidsOpen(false)}>×</button><p className="eyebrow">YOUR COLLECTOR ACTIVITY</p><h2 id="my-bids-title">My bids</h2>{myBidsBusy ? <p className="bids-state">Loading your bids…</p> : myBidsError ? <p className="auth-error" role="alert">{myBidsError}</p> : myBids.length === 0 ? <div className="bids-empty"><p>You haven’t placed any bids yet.</p><small>When you bid on a piece, it will appear here.</small></div> : <div className="my-bids-list">{myBids.map((bid, index) => <article className="my-bid-row" key={bid.id || `${bid.artwork}-${bid.amount}-${index}`}><div><strong>{bid.artwork}</strong><small>{bid.createdAt ? new Date(bid.createdAt).toLocaleString() : 'Saved on this device'}</small></div><span>{formatINR(bid.amount)}</span></article>)}</div>}{!authUser && <p className="bids-signin">Sign in to sync your bids with your account across visits.</p>}</section></div>}
   </>
 }
 

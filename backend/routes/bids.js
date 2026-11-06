@@ -1,7 +1,17 @@
 import { Router } from 'express'
 import { readArtworks, readBids, writeBids } from '../store.js'
+import { getCookie, getSessionUserId, SESSION_COOKIE } from '../auth.js'
 
 const router = Router()
+
+router.get('/mine', async (request, response, next) => {
+  try {
+    const userId = getSessionUserId(getCookie(request, SESSION_COOKIE))
+    if (!userId) return response.status(401).json({ error: 'Sign in to view bids saved to your account.' })
+    const bids = (await readBids()).filter((bid) => bid.userId === userId)
+    return response.json({ bids })
+  } catch (error) { next(error) }
+})
 
 router.get('/', async (_request, response, next) => {
   try { response.json(await readBids()) } catch (error) { next(error) }
@@ -23,7 +33,8 @@ router.post('/', async (request, response, next) => {
     const bids = await readBids()
     const highest = bids.filter((bid) => bid.artworkId === artworkId).reduce((value, bid) => Math.max(value, bid.amount), artwork.price)
     if (amount <= highest) return response.status(409).json({ error: 'A higher bid has already been placed.' })
-    const bid = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, artworkId, artwork: artwork.name, bidder, amount, createdAt: new Date().toISOString() }
+    const userId = getSessionUserId(getCookie(request, SESSION_COOKIE))
+    const bid = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, artworkId, artwork: artwork.name, bidder, amount, ...(userId ? { userId } : {}), createdAt: new Date().toISOString() }
     await writeBids([bid, ...bids])
     response.status(201).json(bid)
   } catch (error) { next(error) }

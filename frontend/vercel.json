@@ -4,6 +4,18 @@
     {
       "source": "/api/:path*",
       "destination": "https://azure-galleria-api.vercel.app/api/:path*"
+    },
+    {
+      "source": "/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/register",
+      "destination": "/index.html"
     }
   ]
 }

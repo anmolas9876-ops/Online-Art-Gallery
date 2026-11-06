@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { readArtworks, readBids, writeBids } from '../store.js'
+import { readArtworks, readBids, readPurchases, writeBids } from '../store.js'
 import { getCookie, getSessionUserId, SESSION_COOKIE } from '../auth.js'
 
 const router = Router()
@@ -28,6 +28,7 @@ router.post('/', async (request, response, next) => {
     const artworks = await readArtworks()
     const artwork = artworks.find((item) => item.id === artworkId)
     if (!artwork) return response.status(404).json({ error: 'Artwork not found.' })
+    if ((await readPurchases()).some((purchase) => Number(purchase.artworkId) === artworkId)) return response.status(409).json({ error: 'This artwork has already been recorded as sold.' })
     if (amount <= artwork.price) return response.status(400).json({ error: 'Bid must be higher than the current bid.' })
 
     const bids = await readBids()

@@ -214,6 +214,20 @@ footer .site-credit a:hover { color: #fff; text-decoration: underline; }
 .form-box h2 { margin: 0 0 22px; color: var(--ink); font-family: var(--serif); font-size: 29px; }
 .form-box p { color: var(--muted); }
 .form-box input { width: 100%; margin: 7px 0; padding: 12px 13px; border: 1px solid var(--line); border-radius: 4px; background: #fcfbf9; }
+.form-box input[readonly] { background: #f1efe9; color: #666; }
+.account-message { min-height: 0; margin: -12px 0 8px; color: var(--accent); font-size: 12px; }
+.account-message:empty { display: none; }
+.auth-switch { margin: 18px 0 0; color: var(--muted); font-size: 13px; }
+.auth-switch a { color: var(--accent); font-weight: 700; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+.account-dashboard h2 { margin: 0 0 4px; }
+.account-avatar { display: grid; width: 62px; height: 62px; margin: 17px auto 12px; place-items: center; border: 1px solid #c7aa8b; border-radius: 50%; background: #f4efe6; color: var(--accent); font-family: var(--serif); font-size: 22px; }
+.account-email { margin: 0 0 18px; }
+.account-summary { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 8px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 5px; background: #faf9f6; }
+.account-summary span { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+.account-summary strong { color: var(--accent); font: 600 22px var(--serif); }
+.form-box button.quiet-button { border-color: transparent; background: transparent; color: var(--muted); }
+.form-box button.quiet-button:hover { color: var(--accent); }
 .form-box select, .form-box textarea { width: 100%; margin: 7px 0; padding: 12px 13px; border: 1px solid var(--line); border-radius: 4px; background: #fcfbf9; color: var(--ink); font: inherit; }
 .form-box textarea { resize: vertical; }
 .form-box button { width: 100%; margin-top: 12px; }
@@ -392,3 +406,6 @@ footer { padding-top: 20px; padding-bottom: 20px; background: rgba(36, 36, 33, .
     .product .art { height: 240px; }
     .auction, .artists, .about, .offers { padding-top: 36px; padding-bottom: 38px; }
 }
+
+.logo .logo-wordmark{font-size:20px;font-weight:600;letter-spacing:-.02em}
+

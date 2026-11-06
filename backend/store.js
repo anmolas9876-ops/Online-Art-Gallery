@@ -5,6 +5,7 @@ const bidsPath = fileURLToPath(new URL('./data/bids.json', import.meta.url))
 const submissionsPath = fileURLToPath(new URL('./data/submissions.json', import.meta.url))
 const artworksPath = fileURLToPath(new URL('./data/artworks.json', import.meta.url))
 const usersPath = fileURLToPath(new URL('./data/users.json', import.meta.url))
+const purchasesPath = fileURLToPath(new URL('./data/purchases.json', import.meta.url))
 
 async function readList(path) {
   try {
@@ -17,9 +18,12 @@ async function readList(path) {
 }
 
 export const readArtworks = () => readList(artworksPath)
+export const writeArtworks = (artworks) => writeFile(artworksPath, `${JSON.stringify(artworks, null, 2)}\n`, 'utf8')
 export const readBids = () => readList(bidsPath)
 export const writeBids = (bids) => writeFile(bidsPath, `${JSON.stringify(bids, null, 2)}\n`, 'utf8')
 export const readSubmissions = () => readList(submissionsPath)
 export const writeSubmissions = (items) => writeFile(submissionsPath, `${JSON.stringify(items, null, 2)}\n`, 'utf8')
 export const readUsers = () => readList(usersPath)
 export const writeUsers = (users) => writeFile(usersPath, `${JSON.stringify(users, null, 2)}\n`, 'utf8')
+export const readPurchases = () => readList(purchasesPath)
+export const writePurchases = (purchases) => writeFile(purchasesPath, `${JSON.stringify(purchases, null, 2)}\n`, 'utf8')

@@ -1,0 +1,147 @@
+import { useEffect, useMemo, useState } from 'react'
+
+const initialArtworks = [
+  { id: 1, name: 'Girl with the Wheat Sheaf', artist: 'Clara Whitmore', category: 'traditional-art', kind: 'Traditional · Portrait', price: 1850, image: 'europeana-WS7wycSbVuY-unsplash.jpg', alt: 'Traditional portrait of a young woman carrying wheat' },
+  { id: 2, name: 'A Quiet Supper', artist: 'Elise Beaumont', category: 'traditional-art', kind: 'Traditional · Portrait', price: 2200, image: 'europeana-XCXbKmxYbsI-unsplash.jpg', alt: 'Classical painting of a girl seated at a table' },
+  { id: 3, name: 'Portrait in Blue', artist: 'Mateo Laurent', category: 'traditional-art', kind: 'Traditional · Portrait', price: 3400, image: 'national-gallery-of-art-wAQpwc0rM1g-unsplash.jpg', alt: 'Expressive blue and gold painted portrait' },
+  { id: 4, name: 'The Grand Salon', artist: 'Beatrice Moreau', category: 'traditional-art', kind: 'Traditional · Gallery', price: 2750, image: 'europeana-vrNNBydA8Wo-unsplash.jpg', alt: 'Historic gallery interior filled with paintings' },
+  { id: 5, name: 'Stillness in Stone', artist: 'Lucien Ardent', category: 'sculptures', kind: 'Sculpture · Marble', price: 4800, image: 'sara-darcaj-YzamNB_T4WQ-unsplash.jpg', alt: 'Marble sculpture of two entwined figures' },
+  { id: 6, name: 'The Young Laureate', artist: 'Felix Rowan', category: 'sculptures', kind: 'Sculpture · Bust', price: 3900, image: 'jack-hunter-1L4E_lsIb9Q-unsplash.jpg', alt: 'Sculpted marble bust in dramatic light' },
+  { id: 7, name: 'Mended in Gold', artist: 'Hana Sato', category: 'sculptures', kind: 'Sculpture · Contemporary', price: 5250, image: 'simon-lee-IEgvy4o3byM-unsplash.jpg', alt: 'Contemporary sculptural bust with gold detailing' },
+  { id: 8, name: 'Gathering of the Muses', artist: 'Adrian Bellini', category: 'sculptures', kind: 'Sculpture · Figure group', price: 6100, image: 'iam_os-jst9zmbCD58-unsplash.jpg', alt: 'Classical marble figure group in a museum' },
+  { id: 9, name: 'Colour in Motion', artist: 'Nina Calder', category: 'modern-art', kind: 'Modern · Abstract', price: 1650, image: 'jene-stephaniuk--MCrF6hnojU-unsplash.jpg', alt: 'Bright abstract painting with textured colorful brushstrokes' },
+  { id: 10, name: 'Lines of a City', artist: 'Jules Mercer', category: 'modern-art', kind: 'Modern · Mixed media', price: 2450, image: 'claudio-schwarz-k39RGHmLoV8-unsplash.jpg', alt: 'Expressive modern mural in bold colors' },
+  { id: 11, name: 'Sunroom No. 4', artist: 'Amara Cole', category: 'modern-art', kind: 'Modern · Abstract', price: 2900, image: 'steve-a-johnson-Xx_d26R37E4-unsplash.jpg', alt: 'Vibrant geometric abstract painting in orange and blue' },
+  { id: 12, name: 'Many Ways of Seeing', artist: 'Devika Rao', category: 'modern-art', kind: 'Modern · Figurative', price: 3150, image: 'mayur-deshpande-zZPeoLxLRyM-unsplash.jpg', alt: 'Colorful cubist-inspired mural painting' },
+]
+
+const groups = [
+  { id: 'traditional-art', eyebrow: 'TIMELESS WORKS', title: 'Traditional Art', description: 'Masterful portraits, historic scenes, and enduring detail.' },
+  { id: 'sculptures', eyebrow: 'FORM IN THREE DIMENSIONS', title: 'Sculptures', description: 'Classical forms and contemporary interpretations in stone.' },
+  { id: 'modern-art', eyebrow: 'NEW PERSPECTIVES', title: 'Modern Art', description: 'Vibrant canvases and bold ideas for contemporary spaces.' },
+]
+
+const artists = [
+  ['CW', 'traditional', 'TRADITIONAL · PORTRAIT', 'Clara Whitmore', 'Girl with the Wheat Sheaf'],
+  ['EB', 'traditional', 'TRADITIONAL · PORTRAIT', 'Elise Beaumont', 'A Quiet Supper'],
+  ['ML', 'traditional', 'TRADITIONAL · PORTRAIT', 'Mateo Laurent', 'Portrait in Blue'],
+  ['BM', 'traditional', 'TRADITIONAL · GALLERY', 'Beatrice Moreau', 'The Grand Salon'],
+  ['LA', 'sculpture', 'SCULPTURE · MARBLE', 'Lucien Ardent', 'Stillness in Stone'],
+  ['FR', 'sculpture', 'SCULPTURE · BUST', 'Felix Rowan', 'The Young Laureate'],
+  ['HS', 'sculpture', 'SCULPTURE · CONTEMPORARY', 'Hana Sato', 'Mended in Gold'],
+  ['AB', 'sculpture', 'SCULPTURE · FIGURE GROUP', 'Adrian Bellini', 'Gathering of the Muses'],
+  ['NC', 'modern', 'MODERN · ABSTRACT', 'Nina Calder', 'Colour in Motion'],
+  ['JM', 'modern', 'MODERN · MIXED MEDIA', 'Jules Mercer', 'Lines of a City'],
+  ['AC', 'modern', 'MODERN · ABSTRACT', 'Amara Cole', 'Sunroom No. 4'],
+  ['DR', 'modern', 'MODERN · FIGURATIVE', 'Devika Rao', 'Many Ways of Seeing'],
+]
+
+const formatINR = (amount) => Number(amount).toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 })
+
+function App() {
+  const [artworks, setArtworks] = useState(initialArtworks)
+  const [query, setQuery] = useState('')
+  const [category, setCategory] = useState('all')
+  const [artistCategory, setArtistCategory] = useState('all')
+  const [slide, setSlide] = useState(0)
+  const [bidItem, setBidItem] = useState(null)
+  const [bidAmount, setBidAmount] = useState('')
+  const [bidderName, setBidderName] = useState('')
+  const [submissionOpen, setSubmissionOpen] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [bids, setBids] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('artGalleryMyBids') || '[]') } catch { return [] }
+  })
+
+  useEffect(() => {
+    let mounted = true
+    fetch('/api/artworks').then((response) => response.ok ? response.json() : Promise.reject()).then((data) => { if (mounted && Array.isArray(data) && data.length) setArtworks(data) }).catch(() => {})
+    return () => { mounted = false }
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setSlide((current) => (current + 1) % 3), 5000)
+    return () => window.clearInterval(timer)
+  }, [])
+
+  const visibleArtworks = useMemo(() => artworks.filter((art) => {
+    const matchesCategory = category === 'all' || art.category === category
+    const text = `${art.name} ${art.artist} ${art.category} ${art.kind || ''}`.toLowerCase()
+    return matchesCategory && text.includes(query.toLowerCase().trim())
+  }), [artworks, category, query])
+
+  const chooseCategory = (next) => {
+    setCategory(next)
+    document.getElementById(next === 'all' ? 'paintings' : next)?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const placeBid = async (event) => {
+    event.preventDefault()
+    const value = Number(bidAmount)
+    if (!bidItem || !Number.isFinite(value) || value <= Number(bidItem.price)) {
+      setNotice(`Enter a bid higher than ${formatINR(bidItem?.price || 0)}.`)
+      return
+    }
+    const newBid = { artworkId: bidItem.id, artwork: bidItem.name, bidder: bidderName.trim(), amount: value, createdAt: new Date().toISOString() }
+    try {
+      const response = await fetch('/api/bids', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newBid) })
+      if (!response.ok) throw new Error()
+    } catch {
+      setNotice('The gallery service is unavailable. Please start the backend and try again.')
+      return
+    }
+    const nextBids = [newBid, ...bids]
+    setArtworks((items) => items.map((art) => art.id === bidItem.id ? { ...art, price: value } : art))
+    setBids(nextBids)
+    try { localStorage.setItem('artGalleryMyBids', JSON.stringify(nextBids)) } catch { /* API remains the source of truth. */ }
+    setNotice(`Your ${formatINR(value)} bid on “${bidItem.name}” has been placed.`)
+    setBidItem(null)
+    setBidAmount('')
+    setBidderName('')
+  }
+
+  const submitArtwork = async (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const submission = Object.fromEntries(formData.entries())
+    submission.price = Number(submission.price)
+    try {
+      const response = await fetch('/api/submissions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(submission) })
+      if (!response.ok) throw new Error()
+    } catch {
+      setNotice('The gallery service is unavailable. Please start the backend and try again.')
+      return
+    }
+    setSubmissionOpen(false)
+    setNotice('Your artwork was sent to the gallery team for review.')
+  }
+
+  const filteredArtists = artistCategory === 'all' ? artists : artists.filter((artist) => artist[1] === artistCategory)
+  const onSearch = (event) => { event.preventDefault(); document.getElementById('paintings')?.scrollIntoView({ behavior: 'smooth' }) }
+
+  return <>
+    <header className="site-header">
+      <a className="brand" href="#home" aria-label="Art Gallery home"><img src="/images/gallery-emblem.png" alt="" /><img className="wordmark" src="/images/gallery-wordmark.png" alt="Art Gallery" /></a>
+      <form className="search-form" onSubmit={onSearch}><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search paintings" aria-label="Search paintings" /><button aria-label="Search">⌕</button></form>
+      <div className="header-links"><button onClick={() => setNotice('Sign in will be available when gallery accounts are enabled.')}>Login</button><button onClick={() => setNotice('Registration will be available when gallery accounts are enabled.')}>Register</button><button onClick={() => setNotice(bids.length ? `You have ${bids.length} saved bid${bids.length === 1 ? '' : 's'}.` : 'You have not placed any bids yet.')}>My Bids{bids.length > 0 && <span className="bid-count">{bids.length}</span>}</button><button onClick={() => setSubmissionOpen(true)}>Submit artwork</button></div>
+    </header>
+    <nav className="main-nav" aria-label="Main navigation">{[['all', 'Paintings'], ['modern-art', 'Modern Art'], ['traditional-art', 'Traditional Art'], ['sculptures', 'Sculptures']].map(([id, label]) => <button className={category === id ? 'selected' : ''} key={id} onClick={() => chooseCategory(id)}>{label}</button>)}<a href="#artists">Artists</a><a href="#about">About us</a></nav>
+    {notice && <div className="notice" role="status"><span>{notice}</span><button onClick={() => setNotice('')} aria-label="Dismiss">×</button></div>}
+    <section className="hero-banner" id="home" aria-label="Featured gallery artwork"><div className="hero-slides" style={{ transform: `translateX(-${slide * 100}%)` }}>{[1, 2, 3].map((number) => <div className="hero-slide" key={number}><img src={`/Banner/banner ${number}.png`} alt={['A curated collection of art in a sunlit gallery', 'Paintings and sculpture displayed in an elegant gallery', 'Art Gallery — explore, discover, own'][number - 1]} /></div>)}</div><button className="hero-arrow prev" aria-label="Previous banner" onClick={() => setSlide((slide + 2) % 3)}>‹</button><button className="hero-arrow next" aria-label="Next banner" onClick={() => setSlide((slide + 1) % 3)}>›</button><div className="hero-dots">{[0, 1, 2].map((number) => <button key={number} className={slide === number ? 'active' : ''} aria-label={`Show banner ${number + 1}`} onClick={() => setSlide(number)} />)}</div></section>
+    <section className="collection-intro"><p className="eyebrow">THE ART OF COLLECTING</p><h1>Find a piece that <em>moves you.</em></h1><p>Original works, remarkable stories, and new perspectives from artists around the world.</p><div className="collection-rule"><span>✳</span></div><h2>Explore the collection</h2><p className="collection-note">A considered collection of paintings and sculpture, chosen to stay with you.</p></section>
+    <main className="collection-sections" id="paintings">{groups.map((group) => {
+      const items = visibleArtworks.filter((art) => art.category === group.id)
+      if (category !== 'all' && category !== group.id) return null
+      return <section className="art-section" id={group.id} key={group.id}><div className="art-section-heading"><p className="eyebrow">{group.eyebrow}</p><h2>{group.title}</h2><p>{group.description}</p></div><div className="products">{items.map((art) => <article className="product" key={art.id}><img className="art-image" src={`/images/${art.image}`} alt={art.alt || art.name} loading="lazy" /><span className="art-type">{art.kind}</span><h3>{art.name}</h3><p>Artist: {art.artist}</p><p className="price">Current bid: {formatINR(art.price)}</p><button className="bid-button" onClick={() => { setBidItem(art); setBidAmount(String(Number(art.price) + 250)) }}>Place a bid <span>↗</span></button></article>)}</div>{items.length === 0 && <p className="empty-state">No works found in this collection. Try another search.</p>}</section>
+    })}</main>
+    <section className="auction"><p className="eyebrow">COLLECT SOMETHING EXTRAORDINARY</p><h2>Live auction</h2><p>Bid on selected artworks before the auction ends.</p><p><strong>Next auction:</strong> Sunday, 6:00 PM</p><button onClick={() => chooseCategory('all')}>Explore auction works <span>→</span></button></section>
+    <section className="artists" id="artists"><p className="eyebrow">THE PEOPLE BEHIND THE WORK</p><h2>Meet our artists</h2><p className="section-lede">Twelve distinct voices across painting, sculpture, and tradition. Choose a collection to explore its artists.</p><div className="artist-filters">{[['all', 'All artists'], ['traditional', 'Traditional'], ['sculpture', 'Sculpture'], ['modern', 'Modern']].map(([id, label]) => <button key={id} className={artistCategory === id ? 'active' : ''} onClick={() => setArtistCategory(id)}>{label}</button>)}</div><div className="artist-grid">{filteredArtists.map(([mark, group, specialty, name, work]) => <article className="artist-card" key={name}><span className="artist-mark">{mark}</span><p className="artist-specialty">{specialty}</p><h3>{name}</h3><p className="artist-work">{work}</p><a href={`#${group === 'sculpture' ? 'sculptures' : `${group}-art`}`}>View collection <span>↗</span></a></article>)}</div></section>
+    <section className="about" id="about"><div className="about-stamp"><img src="/images/gallery-emblem.png" alt="Art Gallery monogram" /></div><div><p className="eyebrow">A GALLERY FOR THE CURIOUS</p><h2>Art belongs in the everyday.</h2><p>We bring collectors closer to original art and the artists who make it. Discover thoughtfully selected paintings and sculpture, learn the stories behind each work, and find something worth living with.</p><a href="#paintings">Discover the collection <span>↗</span></a></div></section>
+    <section className="services"><p className="eyebrow">A MORE PERSONAL WAY TO COLLECT</p><h2>Good art. Good people.</h2><div><article><span>01</span><h3>Original paintings</h3><p>Find considered works from artists around the world.</p></article><article><span>02</span><h3>Online auctions</h3><p>Take part in thoughtful auctions from wherever you are.</p></article><article><span>03</span><h3>Artist stories</h3><p>Meet the people and ideas behind every work.</p></article></div></section>
+    <footer className="site-footer"><p>Easy buying <span>·</span> Online auctions <span>·</span> Trusted artists <span>·</span> Curated collections</p><p>© 2026 Art Gallery</p><p>Made by Anmol · <a href="https://github.com/anmolas9876-ops" target="_blank" rel="noreferrer">GitHub</a></p></footer>
+    {bidItem && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setBidItem(null) }}><section className="bid-modal" role="dialog" aria-modal="true" aria-labelledby="bid-title"><button className="modal-close" aria-label="Close" onClick={() => setBidItem(null)}>×</button><p className="eyebrow">PLACE A BID</p><h2 id="bid-title">{bidItem.name}</h2><p>Current bid <strong>{formatINR(bidItem.price)}</strong></p><form onSubmit={placeBid}><label>Your name<input required maxLength="80" value={bidderName} onChange={(event) => setBidderName(event.target.value)} /></label><label htmlFor="bid-amount">Your bid (INR)<input id="bid-amount" type="number" min={Number(bidItem.price) + 1} step="50" required value={bidAmount} onChange={(event) => setBidAmount(event.target.value)} /></label><button className="bid-button">Confirm bid <span>↗</span></button></form><small>By placing a bid, you agree to be contacted about this artwork.</small></section></div>}
+    {submissionOpen && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSubmissionOpen(false) }}><section className="bid-modal" role="dialog" aria-modal="true" aria-labelledby="submission-title"><button className="modal-close" aria-label="Close" onClick={() => setSubmissionOpen(false)}>×</button><p className="eyebrow">ARTIST SUBMISSIONS</p><h2 id="submission-title">Share your work</h2><p>Send your artwork to the gallery team for review.</p><form onSubmit={submitArtwork}><label>Artist name<input name="artist" required maxLength="80" /></label><label>Artwork title<input name="title" required maxLength="120" /></label><label>Collection<select name="category" required defaultValue="modern-art"><option value="traditional-art">Traditional art</option><option value="sculptures">Sculpture</option><option value="modern-art">Modern art</option></select></label><label>Artwork image URL<input name="image" type="url" required /></label><label>Starting bid (INR)<input name="price" type="number" min="1" required /></label><label>About your work<textarea name="story" rows="3" maxLength="600" /></label><button className="bid-button">Send for review <span>↗</span></button></form><small>Submissions are reviewed by the gallery before they appear online.</small></section></div>}
+  </>
+}
+
+export default App

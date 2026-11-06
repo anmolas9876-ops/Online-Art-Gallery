@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Art Gallery</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Discover original paintings, meet artists, and take part in curated online auctions.">
+    <title>Art Gallery — Original Art &amp; Auctions</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -10,139 +13,100 @@
 
 <header>
 
-    <div class="logo">ART GALLERY</div>
+    <a class="logo" href="#home" aria-label="Art Gallery home"><img class="logo-mark" src="images/gallery-emblem.png" alt=""><img class="logo-wordmark" src="images/gallery-wordmark.png" alt="Art Gallery"></a>
 
     <div class="search">
-        <input type="text" placeholder="Search Paintings">
-        <button>Search</button>
+        <input id="searchInput" type="text" placeholder="Search Paintings">
+        <button type="button" onclick="searchArtworks()">Search</button>
     </div>
 
     <div class="links">
         <a href="#" onclick="openLogin()">Login</a>
         <a href="#" onclick="openRegister()">Register</a>
         <a href="#" onclick="openBids()">My Bids</a>
+        <a href="#" onclick="openSubmissionForm()">Submit artwork</a>
     </div>
 
 </header>
 
-<nav>
-    <a href="#">Paintings</a>
-    <a href="#">Modern Art</a>
-    <a href="#">Traditional Art</a>
-    <a href="#">Sculptures</a>
-    <a href="#">Artists</a>
-    <a href="#">About Us</a>
+<nav aria-label="Main navigation">
+    <a href="#paintings" onclick="filterArtworks('all')">Paintings</a>
+    <a href="#modern-art" onclick="filterArtworks('modern-art')">Modern Art</a>
+    <a href="#traditional-art" onclick="filterArtworks('traditional-art')">Traditional Art</a>
+    <a href="#sculptures" onclick="filterArtworks('sculptures')">Sculptures</a>
+    <a href="#artists">Artists</a>
+    <a href="#about">About Us</a>
 </nav>
 
-<section class="banner">
+<section class="banner" id="home" aria-label="Featured gallery artwork">
 
     <div class="slider">
 
         <div class="slide">
-            <img src="Banner/banner 1.png" alt="Art Gallery Banner">
+            <img src="Banner/banner 1.png" alt="A curated collection of art in a sunlit gallery">
         </div>
 
         <div class="slide">
-            <img src="Banner/banner 2.png" alt="Art Gallery Banner">
+            <img src="Banner/banner 2.png" alt="Paintings and sculpture displayed in an elegant gallery">
+        </div>
+
+        <div class="slide">
+            <img src="Banner/banner 3.png" alt="Art Gallery — explore, discover, own">
         </div>
 
     </div>
 
-    <button class="prev" onclick="previousSlide()">❮</button>
-    <button class="next" onclick="nextSlide()">❯</button>
+    <button class="prev" type="button" aria-label="Previous banner" onclick="previousSlide()">❮</button>
+    <button class="next" type="button" aria-label="Next banner" onclick="nextSlide()">❯</button>
 
     <div class="dots">
         <span class="dot active" onclick="showSlide(0)"></span>
         <span class="dot" onclick="showSlide(1)"></span>
+        <span class="dot" onclick="showSlide(2)"></span>
     </div>
 
 </section>
 
-<h2>FEATURED ARTWORKS</h2>
-
-<section class="products">
-
-    <div class="product">
-
-        <img
-            class="art"
-            src="images/adrianna-geo-1rBg5YSi00c-unsplash.jpg"
-            alt="Painting"
-        >
-
-        <h3>Council of Gods</h3>
-
-        <p>Artist: Adrianna Geo</p>
-
-        <p class="price">Current Bid: $2500</p>
-
-        <button onclick="openBidForm('Council of Gods', 2500)">
-            Place Bid
-        </button>
-
-    </div>
-
-    <div class="product">
-
-        <img
-            class="art"
-            src="images/birmingham-museums-trust-8wcoY3wcbL0-unsplash.jpg"
-            alt="Painting"
-        >
-
-        <h3>Landscape with Peasants, Cows, Sheep, Cottages and Pool</h3>
-
-        <p>Artist: Thomas Gainsborough</p>
-
-        <p class="price">Current Bid: $1800</p>
-
-        <button onclick="openBidForm('Landscape with Peasants, Cows, Sheep, Cottages and Pool', 1800)">
-            Place Bid
-        </button>
-
-    </div>
-
-    <div class="product">
-
-        <img
-            class="art"
-            src="images/chris-czermak-PamFFHL6fVY-unsplash.jpg"
-            alt="Painting"
-        >
-
-        <h3>Trevi Fountain</h3>
-
-        <p>Artist: Anmol Singh</p>
-
-        <p class="price">Current Bid: $3200</p>
-
-        <button onclick="openBidForm('Trevi Fountain', 3200)">
-            Place Bid
-        </button>
-
-    </div>
-
-    <div class="product">
-
-        <img
-            class="art"
-            src="images/birmingham-museums-trust-nbneQlI2M1A-unsplash.jpg"
-            alt="Painting"
-        >
-
-        <h3>Abstract Dreams</h3>
-
-        <p>Artist: Sarah Johnson</p>
-
-        <p class="price">Current Bid: $999</p>
-
-        <button onclick="openBidForm('Abstract Dreams', 999)">
-            Place Bid
-        </button>
-
-    </div>
-
+<section class="collection-intro" id="collectionIntro">
+    <p class="eyebrow">THE ART OF COLLECTING</p>
+    <h1>Find a piece that <em>moves you.</em></h1>
+    <p>Original works, remarkable stories, and new perspectives from artists around the world.</p>
+    <div class="collection-rule"><span>✳</span></div>
+    <h2>Explore the collection</h2>
+    <p class="collection-note">A considered collection of paintings and sculpture, chosen to stay with you.</p>
 </section>
+
+<main class="collection-sections" id="paintings">
+    <section class="art-section" id="traditional-art" aria-labelledby="traditional-heading">
+        <div class="art-section-heading"><p class="eyebrow">TIMELESS WORKS</p><h2 id="traditional-heading">Traditional Art</h2><p>Masterful portraits, historic scenes, and enduring detail.</p></div>
+        <div class="products">
+            <article class="product"><img class="art" src="images/europeana-WS7wycSbVuY-unsplash.jpg" alt="Traditional portrait of a young woman carrying wheat"><span class="art-type">TRADITIONAL · PORTRAIT</span><h3>Girl with the Wheat Sheaf</h3><p>Artist: Clara Whitmore</p><p class="price">Current Bid: ₹1,850</p><button type="button" onclick="openBidForm('Girl with the Wheat Sheaf', 1850)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/europeana-XCXbKmxYbsI-unsplash.jpg" alt="Classical painting of a girl seated at a table"><span class="art-type">TRADITIONAL · PORTRAIT</span><h3>A Quiet Supper</h3><p>Artist: Elise Beaumont</p><p class="price">Current Bid: ₹2,200</p><button type="button" onclick="openBidForm('A Quiet Supper', 2200)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/national-gallery-of-art-wAQpwc0rM1g-unsplash.jpg" alt="Expressive blue and gold painted portrait"><span class="art-type">TRADITIONAL · PORTRAIT</span><h3>Portrait in Blue</h3><p>Artist: Mateo Laurent</p><p class="price">Current Bid: ₹3,400</p><button type="button" onclick="openBidForm('Portrait in Blue', 3400)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/europeana-vrNNBydA8Wo-unsplash.jpg" alt="Historic gallery interior filled with paintings"><span class="art-type">TRADITIONAL · GALLERY</span><h3>The Grand Salon</h3><p>Artist: Beatrice Moreau</p><p class="price">Current Bid: ₹2,750</p><button type="button" onclick="openBidForm('The Grand Salon', 2750)">Place Bid</button></article>
+        </div>
+    </section>
+
+    <section class="art-section" id="sculptures" aria-labelledby="sculptures-heading">
+        <div class="art-section-heading"><p class="eyebrow">FORM IN THREE DIMENSIONS</p><h2 id="sculptures-heading">Sculptures</h2><p>Classical forms and contemporary interpretations in stone.</p></div>
+        <div class="products">
+            <article class="product"><img class="art" src="images/sara-darcaj-YzamNB_T4WQ-unsplash.jpg" alt="Marble sculpture of two entwined figures"><span class="art-type">SCULPTURE · MARBLE</span><h3>Stillness in Stone</h3><p>Artist: Lucien Ardent</p><p class="price">Current Bid: ₹4,800</p><button type="button" onclick="openBidForm('Stillness in Stone', 4800)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/jack-hunter-1L4E_lsIb9Q-unsplash.jpg" alt="Sculpted marble bust in dramatic light"><span class="art-type">SCULPTURE · BUST</span><h3>The Young Laureate</h3><p>Artist: Felix Rowan</p><p class="price">Current Bid: ₹3,900</p><button type="button" onclick="openBidForm('The Young Laureate', 3900)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/simon-lee-IEgvy4o3byM-unsplash.jpg" alt="Contemporary sculptural bust with gold detailing"><span class="art-type">SCULPTURE · CONTEMPORARY</span><h3>Mended in Gold</h3><p>Artist: Hana Sato</p><p class="price">Current Bid: ₹5,250</p><button type="button" onclick="openBidForm('Mended in Gold', 5250)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/iam_os-jst9zmbCD58-unsplash.jpg" alt="Classical marble figure group in a museum"><span class="art-type">SCULPTURE · FIGURE GROUP</span><h3>Gathering of the Muses</h3><p>Artist: Adrian Bellini</p><p class="price">Current Bid: ₹6,100</p><button type="button" onclick="openBidForm('Gathering of the Muses', 6100)">Place Bid</button></article>
+        </div>
+    </section>
+
+    <section class="art-section" id="modern-art" aria-labelledby="modern-heading">
+        <div class="art-section-heading"><p class="eyebrow">NEW PERSPECTIVES</p><h2 id="modern-heading">Modern Art</h2><p>Vibrant canvases and bold ideas for contemporary spaces.</p></div>
+        <div class="products">
+            <article class="product"><img class="art" src="images/jene-stephaniuk--MCrF6hnojU-unsplash.jpg" alt="Bright abstract painting with textured colorful brushstrokes"><span class="art-type">MODERN · ABSTRACT</span><h3>Colour in Motion</h3><p>Artist: Nina Calder</p><p class="price">Current Bid: ₹1,650</p><button type="button" onclick="openBidForm('Colour in Motion', 1650)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/claudio-schwarz-k39RGHmLoV8-unsplash.jpg" alt="Expressive modern mural in bold colors"><span class="art-type">MODERN · MIXED MEDIA</span><h3>Lines of a City</h3><p>Artist: Jules Mercer</p><p class="price">Current Bid: ₹2,450</p><button type="button" onclick="openBidForm('Lines of a City', 2450)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/steve-a-johnson-Xx_d26R37E4-unsplash.jpg" alt="Vibrant geometric abstract painting in orange and blue"><span class="art-type">MODERN · ABSTRACT</span><h3>Sunroom No. 4</h3><p>Artist: Amara Cole</p><p class="price">Current Bid: ₹2,900</p><button type="button" onclick="openBidForm('Sunroom No. 4', 2900)">Place Bid</button></article>
+            <article class="product"><img class="art" src="images/mayur-deshpande-zZPeoLxLRyM-unsplash.jpg" alt="Colorful cubist-inspired mural painting"><span class="art-type">MODERN · FIGURATIVE</span><h3>Many Ways of Seeing</h3><p>Artist: Devika Rao</p><p class="price">Current Bid: ₹3,150</p><button type="button" onclick="openBidForm('Many Ways of Seeing', 3150)">Place Bid</button></article>
+        </div>
+    </section>
+</main>
 
 <section class="auction">
 
@@ -154,8 +118,41 @@
         <b>Next Auction:</b> Sunday, 6:00 PM
     </p>
 
-    <button>View Auction Items</button>
+    <button onclick="document.getElementById('paintings').scrollIntoView({behavior:'smooth'})">View Auction Items</button>
 
+</section>
+
+<section class="artists" id="artists">
+    <p class="eyebrow">THE PEOPLE BEHIND THE WORK</p>
+    <h2>Meet our artists</h2>
+    <p class="section-lede">Twelve distinct voices across painting, sculpture, and tradition. Choose a collection to explore its artists.</p>
+    <div class="artist-filters" role="group" aria-label="Filter artists by collection">
+        <button class="artist-filter active" type="button" aria-pressed="true" onclick="filterArtists('all', this)">All paintings</button>
+        <button class="artist-filter" type="button" aria-pressed="false" onclick="filterArtists('traditional', this)">Traditional</button>
+        <button class="artist-filter" type="button" aria-pressed="false" onclick="filterArtists('sculpture', this)">Sculptures</button>
+        <button class="artist-filter" type="button" aria-pressed="false" onclick="filterArtists('modern', this)">Modern</button>
+    </div>
+    <div class="artist-list" aria-live="polite">
+        <article class="artist-card" data-category="traditional"><span class="artist-mark">CW</span><p class="artist-specialty">TRADITIONAL · PORTRAIT</p><h3>Clara Whitmore</h3><p class="artist-work">Girl with the Wheat Sheaf</p><a href="#traditional-art" onclick="filterArtworks('traditional-art')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="traditional"><span class="artist-mark">EB</span><p class="artist-specialty">TRADITIONAL · PORTRAIT</p><h3>Elise Beaumont</h3><p class="artist-work">A Quiet Supper</p><a href="#traditional-art" onclick="filterArtworks('traditional-art')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="traditional"><span class="artist-mark">ML</span><p class="artist-specialty">TRADITIONAL · PORTRAIT</p><h3>Mateo Laurent</h3><p class="artist-work">Portrait in Blue</p><a href="#traditional-art" onclick="filterArtworks('traditional-art')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="traditional"><span class="artist-mark">BM</span><p class="artist-specialty">TRADITIONAL · GALLERY</p><h3>Beatrice Moreau</h3><p class="artist-work">The Grand Salon</p><a href="#traditional-art" onclick="filterArtworks('traditional-art')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="sculpture"><span class="artist-mark">LA</span><p class="artist-specialty">SCULPTURE · MARBLE</p><h3>Lucien Ardent</h3><p class="artist-work">Stillness in Stone</p><a href="#sculptures" onclick="filterArtworks('sculptures')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="sculpture"><span class="artist-mark">FR</span><p class="artist-specialty">SCULPTURE · BUST</p><h3>Felix Rowan</h3><p class="artist-work">The Young Laureate</p><a href="#sculptures" onclick="filterArtworks('sculptures')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="sculpture"><span class="artist-mark">HS</span><p class="artist-specialty">SCULPTURE · CONTEMPORARY</p><h3>Hana Sato</h3><p class="artist-work">Mended in Gold</p><a href="#sculptures" onclick="filterArtworks('sculptures')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="sculpture"><span class="artist-mark">AB</span><p class="artist-specialty">SCULPTURE · FIGURE GROUP</p><h3>Adrian Bellini</h3><p class="artist-work">Gathering of the Muses</p><a href="#sculptures" onclick="filterArtworks('sculptures')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="modern"><span class="artist-mark">NC</span><p class="artist-specialty">MODERN · ABSTRACT</p><h3>Nina Calder</h3><p class="artist-work">Colour in Motion</p><a href="#modern-art" onclick="filterArtworks('modern-art')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="modern"><span class="artist-mark">JM</span><p class="artist-specialty">MODERN · MIXED MEDIA</p><h3>Jules Mercer</h3><p class="artist-work">Lines of a City</p><a href="#modern-art" onclick="filterArtworks('modern-art')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="modern"><span class="artist-mark">AC</span><p class="artist-specialty">MODERN · ABSTRACT</p><h3>Amara Cole</h3><p class="artist-work">Sunroom No. 4</p><a href="#modern-art" onclick="filterArtworks('modern-art')">View collection <span>↗</span></a></article>
+        <article class="artist-card" data-category="modern"><span class="artist-mark">DR</span><p class="artist-specialty">MODERN · FIGURATIVE</p><h3>Devika Rao</h3><p class="artist-work">Many Ways of Seeing</p><a href="#modern-art" onclick="filterArtworks('modern-art')">View collection <span>↗</span></a></article>
+    </div>
+</section>
+
+<section class="about" id="about">
+    <div class="about-stamp"><img src="images/gallery-emblem.png" alt="Art Gallery monogram emblem"></div>
+    <div><p class="eyebrow">A GALLERY FOR THE CURIOUS</p><h2>Art belongs in the everyday.</h2>
+    <p>We bring collectors closer to original art and the artists who make it. Discover thoughtfully selected paintings and sculpture, learn the stories behind each work, and find something worth living with.</p>
+    <a href="#paintings">Discover the collection <span aria-hidden="true">↗</span></a></div>
 </section>
 
 <section class="offers">
@@ -179,6 +176,8 @@
     </p>
 
     <p>© 2026 Art Gallery</p>
+
+    <p class="site-credit">Made by Anmol · <a href="https://github.com/anmolas9876-ops" target="_blank" rel="noopener noreferrer">GitHub: anmolas9876-ops</a></p>
 
 </footer>
 
@@ -268,9 +267,7 @@
 
         <div id="myBids">
 
-            <p>
-                No bids placed yet.
-            </p>
+            <p>No bids placed yet.</p>
 
         </div>
 
@@ -297,6 +294,13 @@
         <form onsubmit="placeBid(event)">
 
             <input
+                id="bidderName"
+                type="text"
+                placeholder="Your name"
+                required
+            >
+
+            <input
                 id="bidAmount"
                 type="number"
                 placeholder="Enter your bid amount"
@@ -312,6 +316,29 @@
 
     </div>
 
+</div>
+
+<div id="submissionBox" class="popup">
+    <div class="form-box submission-form-box">
+        <span class="close" onclick="closeForms()">×</span>
+        <p class="eyebrow">ARTIST SUBMISSIONS</p>
+        <h2>Share your work</h2>
+        <p>Send your artwork to the gallery team for review.</p>
+        <form onsubmit="submitArtwork(event)">
+            <input id="submissionArtist" type="text" placeholder="Artist name" required>
+            <input id="submissionTitle" type="text" placeholder="Artwork title" required>
+            <select id="submissionCategory" required>
+                <option value="traditional">Traditional art</option>
+                <option value="sculpture">Sculpture</option>
+                <option value="modern">Modern art</option>
+            </select>
+            <input id="submissionImage" type="url" placeholder="Artwork image URL" required>
+            <input id="submissionPrice" type="number" min="1" step="1" placeholder="Starting bid (INR)" required>
+            <textarea id="submissionStory" placeholder="A short description of your work" rows="3"></textarea>
+            <button type="submit">Send for review</button>
+        </form>
+        <p class="form-note">Submissions are reviewed by the gallery before they appear online.</p>
+    </div>
 </div>
 
 <script src="script.js"></script>

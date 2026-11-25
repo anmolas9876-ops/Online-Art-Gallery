@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 import { Router } from 'express'
 import { getCookie } from '../auth.js'
-import { readArtworks, readBids, readPurchases, readSubmissions, writeArtworks, writePurchases, writeSubmissions } from '../store.js'
+import { readArtworks, readBids, readPurchases, readSubmissions, writeArtworks, writeBids, writePurchases, writeSubmissions } from '../store.js'
 
 const router = Router()
 const COOKIE = 'art_gallery_admin'
@@ -72,9 +72,39 @@ router.post('/logout', (request, response) => {
 
 router.get('/overview', requireAdmin, async (_request, response, next) => {
   try {
-    const [artworks, bids, submissions, purchases] = await Promise.all([readArtworks(), readBids(), readSubmissions(), readPurchases()])
+    const [artworks, bids, submissions, savedPurchases] = await Promise.all([readArtworks(), readBids(), readSubmissions(), readPurchases()])
+    const purchases = [...savedPurchases]
+    for (const bid of bids.filter((item) => item.status === 'finalized')) {
+      if (purchases.some((sale) => Number(sale.artworkId) === Number(bid.artworkId))) continue
+      const artwork = artworks.find((item) => Number(item.id) === Number(bid.artworkId))
+      if (!artwork) continue
+      purchases.unshift({ id: `sale-${bid.id}`, artworkId: bid.artworkId, artwork: artwork.name, artist: artwork.artist, buyer: bid.bidder, amount: Number(bid.amount), date: (bid.finalizedAt || new Date().toISOString()).slice(0, 10), recordedAt: bid.finalizedAt || new Date().toISOString(), bidId: bid.id })
+    }
+    if (purchases.length !== savedPurchases.length) await writePurchases(purchases)
     const collection = artworks.map((artwork) => ({ ...artwork, status: purchases.some((purchase) => Number(purchase.artworkId) === Number(artwork.id)) ? 'sold' : 'available' }))
     return response.json({ artworks: collection, bids, submissions, purchases })
+  } catch (error) { next(error) }
+})
+
+router.post('/bids/:id/finalize', requireAdmin, async (request, response, next) => {
+  try {
+    const [bids, purchases, artworks] = await Promise.all([readBids(), readPurchases(), readArtworks()])
+    const bid = bids.find((item) => item.id === request.params.id)
+    if (!bid) return response.status(404).json({ error: 'Bid not found.' })
+    if (!bid.userId) return response.status(400).json({ error: 'This bidder needs to sign in before a finalized notice can appear in My bids.' })
+    if (purchases.some((item) => Number(item.artworkId) === Number(bid.artworkId))) return response.status(409).json({ error: 'A sale has already been finalized for this artwork.' })
+    const artwork = artworks.find((item) => Number(item.id) === Number(bid.artworkId))
+    if (!artwork) return response.status(404).json({ error: 'Artwork not found.' })
+    const finalizedAt = new Date().toISOString()
+    const purchase = { id: `sale-${Date.now()}`, artworkId: bid.artworkId, artwork: artwork.name, artist: artwork.artist, buyer: bid.bidder, amount: Number(bid.amount), date: finalizedAt.slice(0, 10), recordedAt: finalizedAt, bidId: bid.id }
+    for (const offer of bids) {
+      if (Number(offer.artworkId) !== Number(bid.artworkId)) continue
+      offer.status = offer.id === bid.id ? 'finalized' : 'closed'
+      offer.finalizedAt = finalizedAt
+    }
+    await writeBids(bids)
+    await writePurchases([purchase, ...purchases])
+    return response.json({ bid, purchase })
   } catch (error) { next(error) }
 })
 

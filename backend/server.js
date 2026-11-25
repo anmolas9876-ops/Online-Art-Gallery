@@ -20,8 +20,9 @@ app.use('/api/artworks', artworksRouter)
 app.use('/api/bids', bidsRouter)
 app.use('/api/submissions', submissionsRouter)
 app.use((error, _request, response, _next) => {
-  console.error(error)
-  response.status(500).json({ error: 'The gallery service could not complete this request.' })
+  console.error('Gallery API request failed:', error)
+  const message = process.env.NODE_ENV === 'production' ? 'The gallery service could not complete this request.' : (error?.message || 'The gallery service could not complete this request.')
+  response.status(500).json({ error: message })
 })
 
 if (process.env.VERCEL !== '1') app.listen(port, () => console.log(`Azure Galleria API listening on http://localhost:${port}`))
